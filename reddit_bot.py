@@ -16,10 +16,8 @@ def bot_login():
 
 #Runs bot using the saved comments text file
 def run_bot(r, replied_comments):
-     """
-        The subreddit function determines which subreddit to reply to using the bot.
-        The comments function determines the amount of recent comments to look through.
-     """
+        #The subreddit function determines which subreddit to reply to using the bot.
+        #The comments function determines the amount of recent comments to look through.
     for comment in r.subreddit('test').comments(limit=25):
         #Looks for target keyword
         if "24" in comment.body and comment.id not in replied_comments:
