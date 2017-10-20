@@ -16,25 +16,34 @@ def bot_login():
     return r
 
 #Runs bot using the saved comments text file
-def run_bot(r, replied_comments):
-        #The subreddit function determines which subreddit to reply to using the bot.
-        #The comments function determines the amount of recent comments to look through.
-    for comment in r.subreddit('lakers').stream.comments():
+def run_bot(r, replied_comments, lakersRoster):
+    """
+    The subreddit function determines which subreddit to reply to using the bot.
+    The comments function determines the amount of recent comments to look through.
+    """
+    for comment in r.subreddit('test').stream.comments():
+        #Prevents spamming multiply replies to the same comment.
         if comment.id not in replied_comments:
+            #Splits a comment body word by word.
             for word in comment.body.split():
+                #Looks for a call to the bot ('!')
                 if word[0] == '!':
                     player = word[1:]
-                    URL = get_player_url(player)
-                    comment.reply(URL)
-                    print("Replied to comment " + comment.id)
+                    #Checks that the call to bot was intentional and not a grammatical error
+                    if player in lakersRoster:
+                        URL = get_player_url(player)
+                        comment.reply(URL)
+                        print("Replied to comment " + comment.id)
 
-                    #Adds to the replied-to-comments text file
-                    replied_comments.add(comment.id)
-                    with open ("rpldcmmnts.txt", "a") as txt:
-                        txt.write(comment.id + "\n")
+                        #Adds to the replied-to-comments text file
+                        replied_comments.add(comment.id)
+                        with open ("rpldcmmnts.txt", "a") as txt:
+                            txt.write(comment.id + "\n")
     #Sleeps for a set amount of time every run through
+    time.sleep(8)
     print("Sleeping for 8 seconds...")
 
+#Takes in the ! command with the player name and converts it into a basketball reference URL.
 def get_player_url(name):
     second = False
     iterator = 0
@@ -59,7 +68,7 @@ def get_player_url(name):
 
     playerID = playerIDL + playerIDF
 
-    URL = "https://www.basketball-reference.com/players/" + playerInitial + "/" + playerIDL + playerIDF + "/gamelog/2018"
+    URL = "https://www.basketball-reference.com/players/" + playerInitial + "/" + playerIDL + playerIDF + "01/gamelog/2018"
 
     return URL
 
@@ -75,11 +84,25 @@ def get_saved_comments():
 
     return replied_comments
 
+#Returns the Lakers roster
+def get_roster():
+    if not os.path.isfile("roster.txt"):
+        roster = set()
+    else:
+        with open("roster.txt", "r") as txt:
+            roster = set()
+            for player in txt.readlines():
+                roster.add(player.strip())
+
+    return roster
+
 #Tester, post in /r/test to test the bot
 r = bot_login()
-replied_comments = get_saved_comments()
-print(replied_comments)
+repliedComments = get_saved_comments()
+lakersRoster = get_roster()
+print(repliedComments)
+print(lakersRoster)
 
 #Runs until keyboard interrupts
 while(True):
-    run_bot(r, replied_comments)
+    run_bot(r, repliedComments, lakersRoster)
