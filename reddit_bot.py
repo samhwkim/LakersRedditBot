@@ -2,6 +2,7 @@ import praw
 import config
 import time
 import os
+import string
 
 #Logs the bot in
 def bot_login():
@@ -18,20 +19,49 @@ def bot_login():
 def run_bot(r, replied_comments):
         #The subreddit function determines which subreddit to reply to using the bot.
         #The comments function determines the amount of recent comments to look through.
-    for comment in r.subreddit('test').comments(limit=25):
-        #Looks for target keyword
-        if "24" in comment.body and comment.id not in replied_comments:
-            print("String with \"24\" found!")
-            comment.reply("8")
-            print("Replied to comment " + comment.id)
+    for comment in r.subreddit('lakers').stream.comments():
+        if comment.id not in replied_comments:
+            for word in comment.body.split():
+                if word[0] == '!':
+                    player = word[1:]
+                    URL = get_player_url(player)
+                    comment.reply(URL)
+                    print("Replied to comment " + comment.id)
 
-            #Adds to the replied-to-comments text file
-            replied_comments.add(comment.id)
-            with open ("rpldcmmnts.txt", "a") as txt:
-                txt.write(comment.id + "\n")
+                    #Adds to the replied-to-comments text file
+                    replied_comments.add(comment.id)
+                    with open ("rpldcmmnts.txt", "a") as txt:
+                        txt.write(comment.id + "\n")
     #Sleeps for a set amount of time every run through
     print("Sleeping for 8 seconds...")
-    time.sleep(8)
+
+def get_player_url(name):
+    second = False
+    iterator = 0
+    lastNameIndex = 0
+    playerInitial = ''
+    playerIDF = name[0:2].lower()
+    for c in name:
+        if c in string.ascii_uppercase:
+            second = True
+        if c in string.ascii_uppercase and second == True:
+            lastNameIndex = iterator
+            playerInitial = c.lower()
+
+        iterator += 1
+
+    lastName = name[lastNameIndex:]
+
+    if len(lastName) > 4:
+        playerIDL = lastName[:5].lower()
+    else:
+        playerIDL = lastName.lower()
+
+    playerID = playerIDL + playerIDF
+
+    URL = "https://www.basketball-reference.com/players/" + playerInitial + "/" + playerIDL + playerIDF + "/gamelog/2018"
+
+    return URL
 
 #Returns the replied-to-comments text file
 def get_saved_comments():
