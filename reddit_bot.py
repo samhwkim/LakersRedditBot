@@ -3,7 +3,7 @@ import config
 import time
 import os
 import string
-from scraper import Scraper
+import scraper
 
 #Logs the bot in
 def bot_login():
