@@ -3,6 +3,7 @@ import config
 import time
 import os
 import string
+from scraper import Scraper
 
 #Logs the bot in
 def bot_login():
@@ -32,7 +33,9 @@ def run_bot(r, replied_comments, lakersRoster):
                     #Checks that the call to bot was intentional and not a grammatical error
                     if player in lakersRoster:
                         URL = get_player_url(player)
-                        comment.reply(URL)
+                        playerStats = get_scraped_stats(URL)
+                        for i in playerStats:
+                            print(i,playerStats[i])
                         print("Replied to comment " + comment.id)
 
                         #Adds to the replied-to-comments text file
@@ -68,7 +71,7 @@ def get_player_url(name):
 
     playerID = playerIDL + playerIDF
 
-    URL = "https://www.basketball-reference.com/players/" + playerInitial + "/" + playerIDL + playerIDF + "01/gamelog/2018"
+    URL = "https://www.basketball-reference.com/players/" + playerInitial + "/" + playerIDL + playerIDF + "01.html"
 
     return URL
 
@@ -96,7 +99,7 @@ def get_roster():
 
     return roster
 
-#Tester, post in /r/test to test the bot
+#Main testing code post in /r/test to test the bot
 r = bot_login()
 repliedComments = get_saved_comments()
 lakersRoster = get_roster()
