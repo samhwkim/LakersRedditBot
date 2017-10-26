@@ -26,6 +26,7 @@ def get_scraped_stats(url):
     freeThrowPercentage = season.find("td",{"data-stat":"ft_pct"})
     avgOffensiveRebounds = season.find("td",{"data-stat":"orb_per_g"})
     avgDefensiveRebounds = season.find("td",{"data-stat":"drb_per_g"})
+    avgTotalRebounds = season.find("td",{"data-stat":"trb_per_g"})
     avgAst =season.find("td",{"data-stat":"ast_per_g"})
     avgStl = season.find("td",{"data-stat":"stl_per_g"})
     avgBlk = season.find("td",{"data-stat":"blk_per_g"})
@@ -41,11 +42,7 @@ def get_scraped_stats(url):
                 'twoPointPercentage': twoPointPercentage.text, 'effectiveFieldGoalPercentage': effectiveFieldGoalPercentage.text,
                 'avgFreeThrowsMade': avgFreeThrowsMade.text, 'avgFreeThrowsAttempted': avgFreeThrowsAttempted.text,
                 'freeThrowPercentage': freeThrowPercentage.text, 'avgOffensiveRebounds': avgOffensiveRebounds.text,
-                'avgDefensiveRebounds': avgDefensiveRebounds.text, 'avgAst': avgAst.text, 'avgStl': avgStl.text,
+                'avgDefensiveRebounds': avgDefensiveRebounds.text, 'avgTotalRebounds': avgTotalRebounds.text, 'avgAst': avgAst.text, 'avgStl': avgStl.text,
                 'avgBlk': avgBlk.text, 'avgTov': avgTov.text, 'avgPf': avgPf.text, 'avgPts': avgPts.text}
 
     return seasonAvgs
-
-stats = get_scraped_stats('https://www.basketball-reference.com/players/i/ingrabr01.html')
-for i in stats:
-    print(i, stats[i])

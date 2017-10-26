@@ -4,6 +4,7 @@ import time
 import os
 import string
 import scraper
+import tablemaker
 
 #Logs the bot in
 def bot_login():
@@ -22,7 +23,7 @@ def run_bot(r, replied_comments, lakersRoster):
     The subreddit function determines which subreddit to reply to using the bot.
     The comments function determines the amount of recent comments to look through.
     """
-    for comment in r.subreddit('test').stream.comments():
+    for comment in r.subreddit('lakers').stream.comments():
         #Prevents spamming multiply replies to the same comment.
         if comment.id not in replied_comments:
             #Splits a comment body word by word.
@@ -33,18 +34,23 @@ def run_bot(r, replied_comments, lakersRoster):
                     #Checks that the call to bot was intentional and not a grammatical error
                     if player in lakersRoster:
                         URL = get_player_url(player)
-                        playerStats = get_scraped_stats(URL)
-                        for i in playerStats:
-                            print(i,playerStats[i])
-                        print("Replied to comment " + comment.id)
-
-                        #Adds to the replied-to-comments text file
-                        replied_comments.add(comment.id)
-                        with open ("rpldcmmnts.txt", "a") as txt:
-                            txt.write(comment.id + "\n")
-    #Sleeps for a set amount of time every run through
-    time.sleep(8)
-    print("Sleeping for 8 seconds...")
+                    elif player == "LarryNance" or "LarryNanceJr":
+                        URL = "https://www.basketball-reference.com/players/n/nancela02.html"
+                    elif player == "KCP":
+                        URL = "https://www.basketball-reference.com/players/c/caldwke01.html"
+                    playerStats = scraper.get_scraped_stats(URL)
+                    table = tablemaker.get_stats_table(playerStats)
+                    while(True):
+                        try:
+                            comment.reply(table)
+                            print("Replied to comment " + comment.id)
+                            #Adds to the replied-to-comments text file
+                            replied_comments.add(comment.id)
+                            with open ("rpldcmmnts.txt", "a") as txt:
+                                txt.write(comment.id + "\n")
+                            break
+                        except APIException:
+                            time.sleep(5)
 
 #Takes in the ! command with the player name and converts it into a basketball reference URL.
 def get_player_url(name):
@@ -103,8 +109,6 @@ def get_roster():
 r = bot_login()
 repliedComments = get_saved_comments()
 lakersRoster = get_roster()
-print(repliedComments)
-print(lakersRoster)
 
 #Runs until keyboard interrupts
 while(True):
